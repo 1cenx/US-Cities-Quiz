@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10211d">
+    <title>U.S. Cities | Geography Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script defer src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+<body>
+    <div class="app-frame">
+        <header class="site-header">
+            <a class="brand" href="/" aria-label="U.S. Cities home">
+                <span class="brand-mark" aria-hidden="true">US</span>
+                <span class="brand-name">U.S. Cities</span>
+            </a>
+            <span class="header-kicker">A geography challenge</span>
+        </header>
+
+        <main>
+            <section id="start-screen" class="start-screen" aria-labelledby="start-title">
+                <div class="start-copy">
+                    <p class="eyebrow"><span></span> THE UNITED STATES, CITY BY CITY</p>
+                    <h1 id="start-title">Know the place.<br><em>Find the city.</em></h1>
+                    <p class="start-subtitle">Can you find all {{ city_count }} cities?</p>
+                    <div class="start-facts" aria-label="Quiz details">
+                        <div><strong>{{ city_count }}</strong><span>cities</span></div>
+                        <div><strong>3</strong><span>chances each</span></div>
+                        <div><strong>{{ "{:,}".format(max_score) }}</strong><span>max points</span></div>
+                    </div>
+                    <button id="start-quiz" class="primary-button" type="button">
+                        <span>Start Quiz</span><span class="button-arrow" aria-hidden="true">&#8594;</span>
+                    </button>
+                    <p id="start-error" class="error-message" role="alert" hidden></p>
+                </div>
+                <div class="start-art" aria-hidden="true">
+                    <div class="art-label">FIELD NOTES <span>01 / {{ city_count }}</span></div>
+                    <div class="art-grid"></div>
+                    <div class="art-route route-one"></div>
+                    <div class="art-route route-two"></div>
+                    <span class="art-pin pin-one"></span><span class="art-pin pin-two"></span>
+                    <span class="art-pin pin-three"></span><span class="art-pin pin-four"></span>
+                    <span class="art-coast">39.8283° N<br>98.5795° W</span>
+                    <div class="art-caption">A little closer<br>to everywhere.</div>
+                </div>
+            </section>
+
+            <section id="game-header" class="game-header" aria-label="Game statistics" hidden>
+                <div class="game-brand"><span class="brand-mark" aria-hidden="true">US</span><strong>U.S. Cities</strong></div>
+                <div class="progress-stat">
+                    <div class="stat-heading"><span>Progress</span><strong><span id="progress-count">0</span><span class="stat-divider">/</span>{{ city_count }}</strong></div>
+                    <div class="progress-track" role="progressbar" aria-label="Quiz progress" aria-valuemin="0" aria-valuemax="{{ city_count }}" aria-valuenow="0"><span id="progress-fill"></span></div>
+                </div>
+                <div class="compact-stat"><span>Score</span><strong id="score">0</strong><span id="score-flash" class="score-flash" aria-live="polite"></span></div>
+                <div class="compact-stat timer-stat"><span>Time</span><strong id="timer">00:00</strong></div>
+            </section>
+
+            <section id="question-panel" class="question-panel" aria-live="polite" hidden>
+                <div><p class="question-overline">FIND THIS CITY</p><h2>Click on <span id="question-city"></span></h2></div>
+                <span class="question-index"><span id="question-number">01</span><span> / {{ city_count }}</span></span>
+            </section>
+
+            <section id="results-panel" class="results-panel" aria-labelledby="results-title" hidden>
+                <div class="results-heading"><p class="eyebrow"><span></span> YOUR FIELD NOTES</p><h1 id="results-title">Quiz Complete!</h1></div>
+                <div class="results-scoreline">
+                    <div><span class="result-label">SCORE</span><strong><span id="final-score">0</span><small> / {{ "{:,}".format(max_score) }}</small></strong></div>
+                    <div class="result-percent"><span class="result-label">PERCENTAGE</span><strong id="final-percent">0.0%</strong></div>
+                    <div><span class="result-label">TIME</span><strong id="final-time">00:00</strong></div>
+                </div>
+                <div class="results-detail">
+                    <h2>How you found them</h2>
+                    <div class="performance-list">
+                        <div class="performance-row" data-performance="first"><span>First attempt</span><span class="performance-track"><i id="bar-first"></i></span><strong id="count-first">0</strong></div>
+                        <div class="performance-row" data-performance="second"><span>Second attempt</span><span class="performance-track"><i id="bar-second"></i></span><strong id="count-second">0</strong></div>
+                        <div class="performance-row" data-performance="third"><span>Third attempt</span><span class="performance-track"><i id="bar-third"></i></span><strong id="count-third">0</strong></div>
+                        <div class="performance-row" data-performance="missed"><span>Missed</span><span class="performance-track"><i id="bar-missed"></i></span><strong id="count-missed">0</strong></div>
+                    </div>
+                </div>
+                <div class="results-actions">
+                    <button id="play-again" class="primary-button" type="button"><span>Play Again</span><span class="button-arrow" aria-hidden="true">&#8635;</span></button>
+                    <button id="review-map" class="secondary-button" type="button">Review Map <span aria-hidden="true">&#8599;</span></button>
+                </div>
+            </section>
+
+            <section id="review-panel" class="review-panel" aria-labelledby="review-title" hidden>
+                <div class="review-heading"><div><p class="question-overline">YOUR {{ city_count }}-CITY MAP</p><h2 id="review-title">Review your round</h2></div><button id="back-to-results" class="text-button" type="button">&#8592; Results</button></div>
+                <div class="review-legend" aria-label="Performance legend">
+                    <span><i class="legend-dot first"></i> First</span><span><i class="legend-dot second"></i> Second</span>
+                    <span><i class="legend-dot third"></i> Third</span><span><i class="legend-dot missed"></i> Missed</span>
+                </div>
+                <p id="review-detail" class="review-detail" aria-live="polite">Select a city marker to see how you did.</p>
+            </section>
+
+            <section id="map-card" class="map-card" aria-label="Interactive map of the United States" hidden>
+                <svg id="us-map" viewBox="0 0 1000 640" role="img" aria-label="Map showing U.S. state boundaries. Click the map to guess a city."></svg>
+                <div id="map-status" class="map-status" role="status" hidden></div>
+                <span class="map-credit">STATE BOUNDARIES <span>&middot;</span> U.S. CENSUS</span>
+            </section>
+            <div id="map-controls" class="map-controls" aria-label="Map controls" hidden>
+                <button id="zoom-in" type="button" aria-label="Zoom in" title="Zoom in">+</button>
+                <button id="zoom-out" type="button" aria-label="Zoom out" title="Zoom out">&#8722;</button>
+                <button id="zoom-reset" class="zoom-reset" type="button" aria-label="Reset map view" title="Reset map view">Reset</button>
+            </div>
+
+            <section id="game-feedback" class="game-feedback" aria-live="polite" hidden>
+                <div class="feedback-copy"><strong id="feedback-title">3 chances</strong><span id="feedback-detail">Tap the map to place your guess.</span></div>
+                <div class="attempt-dots" aria-label="Three chances per city"><i></i><i></i><i></i></div>
+            </section>
+        </main>
+        <footer class="site-footer"><span>U.S. Cities Geography Quiz</span><span>Made for curious minds</span></footer>
+    </div>
+</body>
+</html>

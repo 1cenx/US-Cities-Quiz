@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Quiz Results</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz Results</h1>
+        <p>Your Score: {{ score }} out of {{ total }}</p>
+        <p>Percentage: {{ percentage }}%</p>
+        <h2>Statistics</h2>
+        <ul>
+            <li>Correct Answers: {{ correct_answers }}</li>
+            <li>Incorrect Answers: {{ incorrect_answers }}</li>
+        </ul>
+        <a href="{{ url_for('index') }}" class="btn">Try Again</a>
+    </div>
+</body>
+</html>

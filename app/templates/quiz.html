@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Geography Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'base.html' %}
+    <div class="quiz-container">
+        <h1>U.S. Geography Quiz</h1>
+        <div id="map"></div>
+        <div class="quiz-info">
+            <p id="question">Where is {{ current_city }}?</p>
+            <input type="text" id="answer" placeholder="Type your answer here...">
+            <button id="submit-answer">Submit</button>
+        </div>
+        <div class="score-timer">
+            <p>Score: <span id="score">{{ score }}</span></p>
+            <p>Time Left: <span id="timer">{{ time_left }}</span> seconds</p>
+        </div>
+        <div id="progress">
+            <p>Question <span id="question-number">{{ question_number }}</span> of <span id="total-questions">{{ total_questions }}</span></p>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
