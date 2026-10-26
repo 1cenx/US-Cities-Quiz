@@ -13,3 +13,16 @@ services:
         value: "false"
       - key: FLASK_ENV
         value: production
+  - type: web
+    name: us-waterways-geography-quiz
+    runtime: python
+    plan: free
+    rootDir: us-waterways-geography-quiz
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn run:app --bind 0.0.0.0:$PORT
+    healthCheckPath: /
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_DEBUG
+        value: "false"
